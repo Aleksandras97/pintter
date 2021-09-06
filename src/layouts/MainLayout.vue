@@ -5,7 +5,7 @@
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title class="text-weight-bold">
-          <span class="gt-sm"> Pintter </span>
+          <span class="gt-sm"> {{$route.name}} </span>
           <q-icon class="q-pa-sm lt-md header-icon" name="fas fa-ribbon" size="md" color="primary" />
         </q-toolbar-title>
       </q-toolbar>
@@ -21,7 +21,7 @@
       <q-icon class="q-pa-sm" name="fas fa-ribbon" size="lg" color="primary" />
 
       <q-list>
-        <q-item to="/" clickable v-ripple>
+        <q-item to="/" exact clickable v-ripple>
           <q-item-section avatar>
             <q-icon name="home" size="md" />
           </q-item-section>
@@ -29,7 +29,7 @@
           <q-item-section class="text-h6 text-weight-bold">Home</q-item-section>
         </q-item>
 
-        <q-item to="/about" clickable v-ripple>
+        <q-item to="/about" exact clickable v-ripple>
           <q-item-section avatar>
             <q-icon name="info" size="md" />
           </q-item-section>
@@ -39,7 +39,7 @@
           >
         </q-item>
 
-        <q-item to="/" clickable v-ripple>
+        <q-item to="/" exact clickable v-ripple>
           <q-item-section avatar>
             <q-icon name="home" size="md" />
           </q-item-section>
