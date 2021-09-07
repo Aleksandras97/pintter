@@ -97,31 +97,33 @@
 </template>
 
 <script>
+import db from "../boot/firebase";
 import { formatDistance } from "date-fns";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 
 export default {
   data() {
     return {
       newPint: "",
       pints: [
-        {
-          id: "p1",
-          content:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-          date: Date.now() + 1,
-        },
-        {
-          id: "p2",
-          content:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-          date: Date.now(),
-        },
-        {
-          id: "p3",
-          content:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-          date: Date.now() - 5,
-        },
+        // {
+        //   id: "p1",
+        //   content:
+        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
+        //   date: Date.now() + 1,
+        // },
+        // {
+        //   id: "p2",
+        //   content:
+        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
+        //   date: Date.now(),
+        // },
+        // {
+        //   id: "p3",
+        //   content:
+        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
+        //   date: Date.now() - 5,
+        // },
       ],
     };
   },
@@ -146,6 +148,25 @@ export default {
         return formatDistance(value, new Date());
       };
     },
+  },
+  mounted() {
+    const q = query(collection(db, "pints"), orderBy('date'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        let pintChange = change.doc.data()
+        if (change.type === "added") {
+          console.log("New pint: ", pintChange);
+          this.pints.unshift(pintChange)
+        }
+        if (change.type === "modified") {
+          console.log("Modified pint: ", change.doc.data());
+        }
+        if (change.type === "removed") {
+          console.log("Removed pint: ", change.doc.data());
+        }
+      });
+    });
   },
 };
 </script>
