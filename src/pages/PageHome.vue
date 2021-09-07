@@ -25,7 +25,7 @@
           <q-btn
             @click="addNewPint"
             class="q-mb-lg"
-            :disable="newPint"
+            :disable="!newPint"
             unelevated
             rounded
             color="primary"
@@ -99,43 +99,34 @@
 <script>
 import db from "../boot/firebase";
 import { formatDistance } from "date-fns";
-import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+  addDoc,
+} from "firebase/firestore";
 
 export default {
   data() {
     return {
       newPint: "",
       pints: [
-        // {
-        //   id: "p1",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now() + 1,
-        // },
-        // {
-        //   id: "p2",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now(),
-        // },
-        // {
-        //   id: "p3",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now() - 5,
-        // },
       ],
     };
   },
   methods: {
     addNewPint() {
-      console.log(this.newPint);
       const newPint = {
-        id: new Date().toISOString(),
         content: this.newPint,
         date: Date.now(),
       };
-      this.pints.unshift(newPint);
+
+      addDoc(collection(db, "pints"), {
+        ...newPint,
+      });
+
+
       this.newPint = "";
     },
     deletePint(pintData) {
@@ -150,14 +141,13 @@ export default {
     },
   },
   mounted() {
-    const q = query(collection(db, "pints"), orderBy('date'));
+    const q = query(collection(db, "pints"), orderBy("date"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
-        let pintChange = change.doc.data()
+        let pintChange = change.doc.data();
         if (change.type === "added") {
-          console.log("New pint: ", pintChange);
-          this.pints.unshift(pintChange)
+          this.pints.unshift(pintChange);
         }
         if (change.type === "modified") {
           console.log("Modified pint: ", change.doc.data());
