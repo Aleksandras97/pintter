@@ -43,7 +43,7 @@
           enter-active-class="animated fadeIn slow"
           leave-active-class="animated fadeOut slow"
         >
-          <q-item class="q-py-md" v-for="(pint, index) in pints" :key="index">
+          <q-item class="q-py-md" v-for="pint in pints" :key="pint.id">
             <q-item-section avatar top>
               <q-avatar size="xl">
                 <img
@@ -105,14 +105,15 @@ import {
   onSnapshot,
   orderBy,
   addDoc,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 
 export default {
   data() {
     return {
       newPint: "",
-      pints: [
-      ],
+      pints: [],
     };
   },
   methods: {
@@ -126,11 +127,10 @@ export default {
         ...newPint,
       });
 
-
       this.newPint = "";
     },
-    deletePint(pintData) {
-      this.pints = this.pints.filter((pint) => pint.id !== pintData.id);
+    deletePint(pint) {
+      deleteDoc(doc(db, "pints", pint.id));
     },
   },
   computed: {
@@ -146,14 +146,17 @@ export default {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         let pintChange = change.doc.data();
+        pintChange.id = change.doc.id;
         if (change.type === "added") {
           this.pints.unshift(pintChange);
         }
         if (change.type === "modified") {
-          console.log("Modified pint: ", change.doc.data());
+          console.log("Modified pint: ", pintChange);
         }
         if (change.type === "removed") {
-          console.log("Removed pint: ", change.doc.data());
+          console.log("Removed pint: ", pintChange);
+          let index = this.pints.findIndex((pint) => pint.id === pintChange.id);
+          this.pints.splice(index, 1);
         }
       });
     });
