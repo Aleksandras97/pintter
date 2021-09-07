@@ -5,8 +5,13 @@
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title class="text-weight-bold">
-          <span class="gt-sm"> {{$route.name}} </span>
-          <q-icon class="q-pa-sm lt-md header-icon" name="fas fa-ribbon" size="md" color="primary" />
+          <span class="gt-sm"> {{ $route.name }} </span>
+          <q-icon
+            class="q-pa-sm lt-md header-icon"
+            name="fas fa-ribbon"
+            size="md"
+            color="primary"
+          />
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -115,7 +120,9 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <keep-alive>
+        <router-view />
+      </keep-alive>
     </q-page-container>
   </q-layout>
 </template>

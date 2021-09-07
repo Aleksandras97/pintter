@@ -1,6 +1,6 @@
 <template>
   <q-page class="relative-position">
-    <q-scroll-area class="absolute fullscreen">
+    <q-scroll-area class="absolute full-width full-height">
       <div class="q-py-lg q-px-md row items-end q-col-gutter-md">
         <div class="col">
           <q-input
@@ -78,7 +78,14 @@
                   icon="fas fa-retweet"
                   size="sm"
                 />
-                <q-btn flat round color="grey" icon="fas fa-heart" size="sm" />
+                <q-btn
+                  flat
+                  round
+                  @click="toggleLiked(pint)"
+                  :color="pint.liked ? 'pink' : 'gray'"
+                  :icon="pint.liked ? 'fas fa-heart' : 'far fa-heart'"
+                  size="sm"
+                />
                 <q-btn
                   flat
                   round
@@ -106,6 +113,7 @@ import {
   orderBy,
   addDoc,
   deleteDoc,
+  updateDoc,
   doc,
 } from "firebase/firestore";
 
@@ -113,7 +121,22 @@ export default {
   data() {
     return {
       newPint: "",
-      pints: [],
+      pints: [
+        // {
+        //   id: "p1",
+        //   content:
+        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
+        //   date: Date.now() + 1,
+        //   liked: false,
+        // },
+        // {
+        //   id: "p2",
+        //   content:
+        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
+        //   date: Date.now(),
+        //   liked: true,
+        // },
+      ],
     };
   },
   methods: {
@@ -121,6 +144,7 @@ export default {
       const newPint = {
         content: this.newPint,
         date: Date.now(),
+        liked: false,
       };
 
       addDoc(collection(db, "pints"), {
@@ -128,6 +152,16 @@ export default {
       });
 
       this.newPint = "";
+    },
+    toggleLiked(pint) {
+      console.log(pint);
+
+      const pintRef = doc(db, "pints", pint.id);
+
+      // Toggle the "liked" field of the pint
+      updateDoc(pintRef, {
+        liked: !pint.liked,
+      });
     },
     deletePint(pint) {
       deleteDoc(doc(db, "pints", pint.id));
@@ -152,6 +186,8 @@ export default {
         }
         if (change.type === "modified") {
           console.log("Modified pint: ", pintChange);
+          let index = this.pints.findIndex((pint) => pint.id === pintChange.id);
+          Object.assign(this.pints[index], pintChange);
         }
         if (change.type === "removed") {
           console.log("Removed pint: ", pintChange);
