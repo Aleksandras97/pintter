@@ -13,6 +13,12 @@ const routes = [
         component: () => import("src/pages/PageAbout.vue"),
         name: 'About'
       },
+      {
+        path: "/pints/:pintId",
+        component: () => import("src/pages/PageTweet.vue"),
+        name: 'Tweet',
+        props: true,
+      },
     ],
   },
 
