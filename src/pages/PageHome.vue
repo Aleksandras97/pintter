@@ -95,6 +95,11 @@
                   @click="deletePint(pint)"
                 />
               </div>
+              <div class="flex justify-center view-detail">
+                <router-link :to="tweetDetailLink(pint)">
+                  View Detail
+                </router-link>
+              </div>
             </q-item-section>
           </q-item>
         </transition-group>
@@ -121,22 +126,7 @@ export default {
   data() {
     return {
       newPint: "",
-      pints: [
-        // {
-        //   id: "p1",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now() + 1,
-        //   liked: false,
-        // },
-        // {
-        //   id: "p2",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now(),
-        //   liked: true,
-        // },
-      ],
+      pints: [],
     };
   },
   methods: {
@@ -172,6 +162,13 @@ export default {
       return (value) => {
         return formatDistance(value, new Date());
       };
+    },
+    tweetDetailLink() {
+      return (pint) => {
+        const detailLink = this.$route.path + "pints/" + pint.id;
+        return detailLink;
+      }
+
     },
   },
   mounted() {
@@ -216,4 +213,9 @@ export default {
 
 .pint-icons
   margin-left: -5px
+
+.view-detail
+  a
+    text-decoration: none
+    color: $light-blue-6
 </style>
