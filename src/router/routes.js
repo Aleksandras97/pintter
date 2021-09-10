@@ -1,10 +1,11 @@
 const routes = [
   {
     path: "/",
+    redirect: "/pints",
     component: () => import("layouts/MainLayout.vue"),
     children: [
       {
-        path: "",
+        path: "/pints",
         component: () => import("src/pages/PageHome.vue"),
         name: 'Home'
       },
@@ -14,9 +15,15 @@ const routes = [
         name: 'About'
       },
       {
-        path: "/pints/:pintId",
+        path: "pints/:pintId",
         component: () => import("src/pages/PageTweet.vue"),
         name: 'Tweet',
+        props: true,
+      },
+      {
+        path: "/auth",
+        component: () => import("src/pages/auth/UserAuth.vue"),
+        name: 'Auth',
         props: true,
       },
     ],

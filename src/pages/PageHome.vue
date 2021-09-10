@@ -165,7 +165,7 @@ export default {
     },
     tweetDetailLink() {
       return (pint) => {
-        const detailLink = this.$route.path + "pints/" + pint.id;
+        const detailLink = this.$route.path + "/" + pint.id;
         return detailLink;
       }
 
@@ -217,5 +217,5 @@ export default {
 .view-detail
   a
     text-decoration: none
-    color: $light-blue-6
+    color: $primary
 </style>

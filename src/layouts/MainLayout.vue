@@ -5,7 +5,7 @@
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title class="text-weight-bold">
-          <span class="gt-sm"> {{ $route.name }} </span>
+        <span class="gt-sm"> {{ $route.name }}  </span>
           <q-icon
             class="q-pa-sm lt-md header-icon"
             name="fas fa-ribbon"
