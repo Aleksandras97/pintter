@@ -43,7 +43,7 @@
           enter-active-class="animated fadeIn slow"
           leave-active-class="animated fadeOut slow"
         >
-          <q-item class="q-py-md" v-for="pint in pints" :key="pint.id">
+          <q-item class="q-py-md" v-for="pint in AllTweets" :key="pint.id">
             <q-item-section avatar top>
               <q-avatar size="xl">
                 <img
@@ -81,10 +81,10 @@
                 <q-btn
                   flat
                   round
-                  @click="toggleLiked(pint)"
                   :color="pint.liked ? 'pink' : 'gray'"
                   :icon="pint.liked ? 'fas fa-heart' : 'far fa-heart'"
                   size="sm"
+                  @click="toggleLiked(pint)"
                 />
                 <q-btn
                   flat
@@ -109,24 +109,14 @@
 </template>
 
 <script>
-import db from "../boot/firebase";
 import { formatDistance } from "date-fns";
-import {
-  collection,
-  query,
-  onSnapshot,
-  orderBy,
-  addDoc,
-  deleteDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
 
 export default {
   data() {
     return {
       newPint: "",
       pints: [],
+      isLoading: false,
     };
   },
   methods: {
@@ -137,24 +127,31 @@ export default {
         liked: false,
       };
 
-      addDoc(collection(db, "pints"), {
-        ...newPint,
-      });
+      this.$store.dispatch("pint/addPint", newPint);
 
       this.newPint = "";
     },
     toggleLiked(pint) {
-      console.log(pint);
 
-      const pintRef = doc(db, "pints", pint.id);
+
+      pint.liked = !pint.liked
 
       // Toggle the "liked" field of the pint
-      updateDoc(pintRef, {
-        liked: !pint.liked,
-      });
+      this.$store.dispatch('pint/updateLiked', pint);
+
     },
-    deletePint(pint) {
-      deleteDoc(doc(db, "pints", pint.id));
+    deletePint(data){
+
+      this.$store.dispatch('pint/deletePint', data);
+
+
+    },
+    loadPints() {
+      this.isLoading = true;
+
+      this.$store.dispatch("pint/loadPints");
+
+      this.isLoading = false;
     },
   },
   computed: {
@@ -167,32 +164,15 @@ export default {
       return (pint) => {
         const detailLink = this.$route.path + "/" + pint.id;
         return detailLink;
-      }
-
+      };
+    },
+    AllTweets() {
+      const pints = this.$store.getters["pint/pints"];
+      return pints
     },
   },
-  mounted() {
-    const q = query(collection(db, "pints"), orderBy("date"));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        let pintChange = change.doc.data();
-        pintChange.id = change.doc.id;
-        if (change.type === "added") {
-          this.pints.unshift(pintChange);
-        }
-        if (change.type === "modified") {
-          console.log("Modified pint: ", pintChange);
-          let index = this.pints.findIndex((pint) => pint.id === pintChange.id);
-          Object.assign(this.pints[index], pintChange);
-        }
-        if (change.type === "removed") {
-          console.log("Removed pint: ", pintChange);
-          let index = this.pints.findIndex((pint) => pint.id === pintChange.id);
-          this.pints.splice(index, 1);
-        }
-      });
-    });
+  created() {
+    this.loadPints();
   },
 };
 </script>
