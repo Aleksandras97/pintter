@@ -30,7 +30,14 @@
         </q-item-section>
       </q-item>
       <div
-        class="pint-icons row justify-between items-center q-mt-sm q-px-lg icons-seperator"
+        class="
+          pint-icons
+          row
+          justify-between
+          items-center
+          q-mt-sm q-px-lg
+          icons-seperator
+        "
       >
         <div>
           <span class="numbers">{{ commentCount }}</span>
@@ -41,8 +48,8 @@
           flat
           round
           @click="toggleLiked()"
-          :color="pint.liked ? 'pink' : 'gray'"
-          :icon="pint.liked ? 'fas fa-heart' : 'far fa-heart'"
+          :color="pint?.liked ? 'pink' : 'gray'"
+          :icon="pint?.liked ? 'fas fa-heart' : 'far fa-heart'"
           size="sm"
         />
         <q-btn
@@ -70,19 +77,6 @@
 </template>
 
 <script>
-import db from "../boot/firebase";
-import {
-  deleteDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  addDoc,
-} from "firebase/firestore";
-
 import { formatDistance } from "date-fns";
 import AddNewComment from "src/components/Comments/AddNewComment.vue";
 import Comments from "src/components/Comments/Comments.vue";
@@ -92,60 +86,23 @@ export default {
   props: ["pintId"],
   data() {
     return {
-      // pint: {
-      // id: "p1",
-      // content:
-      //   "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-      // date: Date.now() + 1,
-      // liked: false,
-      // },
-      pint: null,
       loading: false,
       newComment: "",
-      comments: [
-        // {
-        //   id: "c1",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now(),
-        //   pintId: this.pintId,
-        // },
-        // {
-        //   id: "c2",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now(),
-        //   pintId: this.pintId,
-        // },
-        // {
-        //   id: "c3",
-        //   content:
-        //     "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-        //   date: Date.now(),
-        //   pintId: this.pintId,
-        // },
-      ],
     };
   },
   methods: {
-    async toggleLiked() {
-      const pintRef = doc(db, "pints", this.pintId);
-      // Toggle the "liked" field of the pint
+    toggleLiked() {
       this.pint.liked = !this.pint.liked;
-
-      await updateDoc(pintRef, {
-        liked: this.pint.liked,
-      });
+      // Toggle the "liked" field of the pint
+      this.$store.dispatch("pint/updateLiked", this.pint);
     },
-    async toggleLikedComment(id) {
-
-      const pintRef = doc(db, "comments", id);
-
-      const comment = this.comments.find((comment) => comment.id === id);
-
+    toggleLikedComment(id) {
+      const index = this.comments.findIndex((comment) => comment.id === id);
+      this.comments[index].liked = !this.comments[index].liked;
       // Toggle the "liked" field of the pint comment
-      await updateDoc(pintRef, {
-        liked: !comment.liked,
+      this.$store.dispatch("com/updateLiked", {
+        pint: this.pint,
+        comment: this.comments[index],
       });
     },
     addComment(comment) {
@@ -156,34 +113,31 @@ export default {
         pintId: this.pintId,
       };
 
-      addDoc(collection(db, "comments"), {
-        ...newComment,
-      });
+      this.$store.dispatch("com/addComment", newComment);
+
+      this.newComment = "";
     },
     deletePint() {
-      deleteDoc(doc(db, "pints", this.pintId));
-      this.$router.replace("/");
+      this.$store.dispatch("pint/deletePint", this.pint);
+      this.$router.replace("/pints");
     },
     deletePintComment(id) {
-      deleteDoc(doc(db, "comments", id));
+      const comment = this.comments.find((comment) => comment.id === id);
+
+      this.$store.dispatch("com/deleteComment", comment);
     },
-    async getTweet() {
+    async loadTweetAndComments() {
       this.loading = true;
 
-      const docRef = doc(db, "pints", this.pintId);
-      const docSnap = await getDoc(docRef);
+      // const pints = this.$store.getters["pint/pints"];
+      await this.$store.dispatch("pint/loadPint", this.pintId);
+      await this.$store.dispatch("com/loadComments", this.pintId);
 
-      if (docSnap.exists()) {
-        this.pint = docSnap.data();
-      } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-      }
       this.loading = false;
     },
   },
   created() {
-    this.getTweet();
+    this.loadTweetAndComments();
   },
   computed: {
     relativeDate() {
@@ -191,38 +145,20 @@ export default {
       return date;
     },
     commentCount() {
-      return this.comments.length
-    }
-  },
-  mounted() {
-    const q = query(
-      collection(db, "comments"),
-      where("pintId", "==", this.pintId)
-    );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        let commentChange = change.doc.data();
-        commentChange.id = change.doc.id;
-        if (change.type === "added") {
-          // console.log("New comment: ", change.doc.data());
-          this.comments.unshift(commentChange);
-        }
-        if (change.type === "modified") {
-          // console.log("Modified comment: ", change.doc.data());
-          let index = this.comments.findIndex(
-            (comment) => comment.id === commentChange.id
-          );
-          Object.assign(this.comments[index], commentChange);
-        }
-        if (change.type === "removed") {
-          // console.log("Removed comment: ", change.doc.data());
-          let index = this.comments.findIndex(
-            (comment) => comment.id === commentChange.id
-          );
-          this.comments.splice(index, 1);
-        }
-      });
-    });
+      return this.comments.length;
+    },
+    pint() {
+      const pint = this.$store.getters["pint/pints"].find(
+        (pint) => pint.id === this.pintId
+      );
+
+      return pint;
+    },
+    comments() {
+      const comments = this.$store.getters["com/comments"];
+      console.log("getter comments", comments);
+      return comments;
+    },
   },
 };
 </script>
