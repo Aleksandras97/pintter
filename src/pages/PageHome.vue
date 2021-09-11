@@ -63,7 +63,7 @@
               <q-item-label class="pint-content text-body1">
                 {{ pint.content }}
               </q-item-label>
-              <div class="pint-icons row justify-between q-mt-sm">
+              <div class="pint-icons row justify-evenly q-mt-sm">
                 <q-btn
                   flat
                   round
@@ -121,6 +121,11 @@ export default {
   },
   methods: {
     addNewPint() {
+      if (!this.isLoggedIn) {
+        this.$router.push('/auth')
+        return
+      }
+
       const newPint = {
         content: this.newPint,
         date: Date.now(),
@@ -132,19 +137,21 @@ export default {
       this.newPint = "";
     },
     toggleLiked(pint) {
-
-
-      pint.liked = !pint.liked
+      if (!this.isLoggedIn) {
+        this.$router.push('/auth')
+        return
+      }
+      pint.liked = !pint.liked;
 
       // Toggle the "liked" field of the pint
-      this.$store.dispatch('pint/updateLiked', pint);
-
+      this.$store.dispatch("pint/updateLiked", pint);
     },
-    deletePint(data){
-
-      this.$store.dispatch('pint/deletePint', data);
-
-
+    deletePint(data) {
+      if (!this.isLoggedIn) {
+        this.$router.push('/auth')
+        return
+      }
+      this.$store.dispatch("pint/deletePint", data);
     },
     loadPints() {
       this.isLoading = true;
@@ -168,7 +175,10 @@ export default {
     },
     AllTweets() {
       const pints = this.$store.getters["pint/pints"];
-      return pints
+      return pints;
+    },
+    isLoggedIn() {
+      return this.$store.getters.isAuth;
     },
   },
   created() {

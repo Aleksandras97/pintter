@@ -90,9 +90,12 @@ const pintModules = {
         ...data,
       };
 
+      const token = ctx.rootGetters.token
+      const userId = ctx.rootGetters.token
+
       axios
         .post(
-          "https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints.json",
+          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints.json?auth=${token}`,
           {
             ...pint,
           }
@@ -102,29 +105,37 @@ const pintModules = {
           ctx.commit("setPint", {
             ...pint,
             id: res.data.name,
+            userId: userId
           });
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    updateLiked(_, data) {
+    updateLiked(ctx, data) {
+
+      const token = ctx.rootGetters.token
       console.log("update pint data", data);
       axios.patch(
-        `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${data.id}.json`,
+        `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${data.id}.json?auth=${token}`,
           {liked: data.liked}
 
       );
     },
     deletePint(ctx, pint) {
+
+      const token = ctx.rootGetters.token
+
       axios
         .delete(
-          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${pint.id}.json`
+          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${pint.id}.json?auth=${token}`
         )
         .then(() => {
           ctx.commit("deletePint", {
             ...pint,
           });
+        }).catch(err => {
+          throw  `Oops failed to delete pint (${err.message})`
         });
     },
   },

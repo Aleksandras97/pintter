@@ -23,8 +23,9 @@ const routes = [
       {
         path: "/auth",
         component: () => import("src/pages/auth/UserAuth.vue"),
-        name: 'Auth',
+        name: 'Authentication',
         props: true,
+        meta: { requiresUnauth: true }
       },
     ],
   },

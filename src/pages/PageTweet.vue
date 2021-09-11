@@ -92,11 +92,20 @@ export default {
   },
   methods: {
     toggleLiked() {
+      if (!this.isLoggedIn) {
+        this.$router.push(`/auth?redirect=pints/${this.pintId}`);
+        return;
+      }
+
       this.pint.liked = !this.pint.liked;
       // Toggle the "liked" field of the pint
       this.$store.dispatch("pint/updateLiked", this.pint);
     },
     toggleLikedComment(id) {
+      if (!this.isLoggedIn) {
+        this.$router.push(`/auth?redirect=pints/${this.pintId}`);
+        return;
+      }
       const index = this.comments.findIndex((comment) => comment.id === id);
       this.comments[index].liked = !this.comments[index].liked;
       // Toggle the "liked" field of the pint comment
@@ -106,6 +115,10 @@ export default {
       });
     },
     addComment(comment) {
+      if (!this.isLoggedIn) {
+        this.$router.push(`/auth?redirect=pints/${this.pintId}`);
+        return;
+      }
       const newComment = {
         content: comment,
         date: Date.now(),
@@ -117,11 +130,19 @@ export default {
 
       this.newComment = "";
     },
-    deletePint() {
+    async deletePint() {
+      if (!this.isLoggedIn) {
+        this.$router.push(`/auth?redirect=pints/${this.pintId}`);
+        return;
+      }
       this.$store.dispatch("pint/deletePint", this.pint);
       this.$router.replace("/pints");
     },
     deletePintComment(id) {
+      if (!this.isLoggedIn) {
+        this.$router.push(`/auth?redirect=pints/${this.pintId}`);
+        return;
+      }
       const comment = this.comments.find((comment) => comment.id === id);
 
       this.$store.dispatch("com/deleteComment", comment);
@@ -158,6 +179,9 @@ export default {
       const comments = this.$store.getters["com/comments"];
       console.log("getter comments", comments);
       return comments;
+    },
+    isLoggedIn() {
+      return this.$store.getters.isAuth;
     },
   },
 };

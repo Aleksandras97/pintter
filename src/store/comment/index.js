@@ -64,13 +64,16 @@ const commentModules = {
         });
     },
     addComment(ctx, data) {
+
+      const token = ctx.rootGetters.token
+
       const comment = {
         ...data,
       };
 
       axios
         .post(
-          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${data.pintId}/comments.json`,
+          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${data.pintId}/comments.json?auth=${token}`,
           {
             ...comment,
           }
@@ -86,19 +89,22 @@ const commentModules = {
           console.log(err);
         });
     },
-    updateLiked(_, { pint, comment }) {
+    updateLiked(ctx, { pint, comment }) {
+      const token = ctx.rootGetters.token
+
       axios.patch(
-        `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${pint.id}/comments/${comment.id}.json`,
+        `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${pint.id}/comments/${comment.id}.json?auth=${token}`,
         {
           liked: comment.liked,
         }
       );
     },
     deleteComment(ctx, comment) {
-      console.log("delete comment data", comment);
+      const token = ctx.rootGetters.token
+
       axios
         .delete(
-          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${comment.pintId}/comments/${comment.id}.json`
+          `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${comment.pintId}/comments/${comment.id}.json?auth=${token}`
         )
         .then(() => {
           ctx.commit("deleteComment", {

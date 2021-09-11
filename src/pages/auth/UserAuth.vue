@@ -56,14 +56,7 @@
         class="q-ml-sm"
       />
       <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
-      <q-btn
-        round
-        size="sm"
-        color="secondary"
-        @click="showNotif('positive','green', 'Successfull signup!', null)"
-      >
-        <q-icon name="arrow_forward" class="rotate-45" />
-      </q-btn>
+
     </div>
   </form>
 </template>
@@ -85,16 +78,6 @@ export default {
   methods: {
     showNotif(type, color, message, icon) {
       const textColor = "white";
-      // const $q = useQuasar();
-      // console.log($q);
-
-      // Notify.create({
-      //       type: 'positive',
-      //       color: 'positive',
-      //       timeout: 1000,
-      //       position: 'center',
-      //       message: 'Yeah. Data saved. Great Job!'
-      //     })
 
       Notify.create({
         type,
@@ -112,7 +95,7 @@ export default {
     clearValidity(input) {
       this[input].isValid = true;
     },
-    SubmitForm() {
+    async SubmitForm() {
       this.isLoading = true;
 
       if (
@@ -126,29 +109,47 @@ export default {
 
       try {
         if (this.mode === "login") {
-          console.log("login");
 
-          this.$store.dispatch("login", {
+          await this.$store.dispatch("login", {
             email: this.email,
             password: this.password,
           });
-          this.showNotif("positive", "green", "You have successfully logedin!", null);
+
+          this.showNotif(
+            "positive",
+            "green",
+            "You have successfully logedin!",
+            null
+          );
+
         } else {
-          console.log("signup");
 
           this.$store.dispatch("signup", {
             email: this.email,
             password: this.password,
           });
-          this.showNotif("positive", "green", "You have successfully signup!", null);
-        }
-      } catch (error) {
-        this.error = error;
-          this.showNotif("negative", "red", `Oops something went wrong ${error.message}`, null);
 
+          this.showNotif(
+            "positive",
+            "green",
+            "You have successfully signup!",
+            null
+          );
+        }
+
+        const redirectURL = "/" + (this.$route.query.redirect || "pints");
+        this.$router.replace(redirectURL);
+
+      } catch (err) {
+        this.error = err;
+        this.showNotif(
+          "negative",
+          "red",
+          err,
+          null
+        );
       }
 
-      console.log(this.isLoading);
       this.isLoading = false;
     },
     switchAuthMode() {

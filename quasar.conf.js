@@ -142,7 +142,7 @@ module.exports = configure(function (ctx) {
       manifest: {
         name: `Pintter`,
         short_name: `Pintter`,
-        description: `A first quasar framework app`,
+        description: `A first quasar framework twitter clone app`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
