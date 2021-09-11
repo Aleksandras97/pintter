@@ -52,6 +52,7 @@ const commentModules = {
               date: resData[key].date,
               liked: resData[key].liked,
               pintId: resData[key].pintId,
+              userEmail: resData[key].userEmail,
             };
             comments.push(comment);
           }

@@ -49,6 +49,7 @@ const pintModules = {
               content: resData[key].content,
               date: resData[key].date,
               liked: resData[key].liked,
+              userEmail: resData[key].userEmail,
             };
             pints.push(pint);
           }
@@ -74,6 +75,7 @@ const pintModules = {
             content: resData.content,
             date: resData.date,
             liked: resData.liked,
+            userEmail: resData.userEmail,
           };
 
           pints.push(pint);

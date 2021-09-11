@@ -5,13 +5,17 @@ const authModules = {
   state() {
     return {
       userId: null,
+      userEmail: null,
       token: null,
-      didAutoLogout: false
+      didAutoLogout: false,
     };
   },
   getters: {
     userId(state) {
       return state.userId;
+    },
+    userEmail(state) {
+      return state.userEmail;
     },
     token(state) {
       return state.token;
@@ -20,8 +24,8 @@ const authModules = {
       return !!state.token;
     },
     didAutoLogout(state) {
-      return state.didAutoLogout
-    }
+      return state.didAutoLogout;
+    },
   },
   mutations: {
     setUser(state, data) {
@@ -30,9 +34,12 @@ const authModules = {
       state.tokenExpiration = data.tokenExpiration;
       state.didAutoLogout = false;
     },
+    setUserData(state, email) {
+      state.userEmail = email;
+    },
     setAutoLogout(state) {
-      state.didAutoLogout = true
-    }
+      state.didAutoLogout = true;
+    },
   },
   actions: {
     async login(ctx, data) {
@@ -67,12 +74,14 @@ const authModules = {
         .then((res) => {
           const resData = res.data;
 
-          const expiresIn = +resData.exipresIn * 1000;
+          const expiresIn = +resData.expiresIn * 1000;
           const expirationDate = new Date().getTime() + expiresIn;
 
-          localStorage.setItem("token", resData.isToken);
-          localStorage.setItem("token", resData.localId);
+          localStorage.setItem("token", resData.idToken);
+          localStorage.setItem("userId", resData.localId);
           localStorage.setItem("tokenExpiration", expirationDate);
+
+          ctx.dispatch("getUserData", token);
 
           timer = setTimeout(() => {
             ctx.dispatch("autoLogout");
@@ -82,6 +91,7 @@ const authModules = {
             token: resData.idToken,
             userid: resData.localId,
           });
+          ctx.commit('setUserData', resData.email)
         })
         .catch((err) => {
           throw `Email or password is incorrect (${err.message})`;
@@ -90,13 +100,14 @@ const authModules = {
     tryLogin(ctx) {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
-      const tokenExpiration = localStorage.getItem('tokenExpiration');
+      const tokenExpiration = localStorage.getItem("tokenExpiration");
 
-      const expiresIn = +tokenExpiration - new Date().getTime()
-
+      const expiresIn = +tokenExpiration - new Date().getTime();
       if (expiresIn < 0) {
-        return
+        return;
       }
+
+      ctx.dispatch("getUserData", token);
 
       timer = setTimeout(() => {
         ctx.dispatch("autoLogout");
@@ -109,6 +120,23 @@ const authModules = {
         });
       }
     },
+    getUserData(ctx, idToken) {
+      axios
+        .post(
+          "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCKvBP0pCGylUVc_mn24iw67SrIdIZsnTI",
+          {
+            idToken,
+          }
+        )
+        .then((res) => {
+          const resData = res.data;
+          const userEmail = resData.users[0].email;
+          ctx.commit("setUserData", userEmail);
+        })
+        .catch((err) => {
+          throw `Failed to fetch user data (${err.message})`;
+        });
+    },
     logout(ctx, state) {
       localStorage.clear();
 
@@ -119,9 +147,9 @@ const authModules = {
       });
     },
     autoLogout(ctx) {
-      ctx.dispatch('logout')
-      ctx.commit('setAutoLogout')
-    }
+      ctx.dispatch("logout");
+      ctx.commit("setAutoLogout");
+    },
   },
 };
 

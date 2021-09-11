@@ -18,9 +18,9 @@
 
         <q-item-section>
           <q-item-label class="text-subtitle1">
-            <strong>Aleksandr Narusevic</strong>
-            <span class="text-grey-7">
-              @aleksandr <br class="lt-md" />
+            <!-- <strong>Aleksandr Narusevic</strong> -->
+            <span class="text-grey-9">
+              {{ pint.userEmail }} <br class="lt-md" />
               &bull; {{ relativeDate }}
             </span>
           </q-item-label>
@@ -48,8 +48,8 @@
           flat
           round
           @click="toggleLiked()"
-          :color="pint?.liked ? 'pink' : 'gray'"
-          :icon="pint?.liked ? 'fas fa-heart' : 'far fa-heart'"
+          :color="pint.liked ? 'pink' : 'gray'"
+          :icon="pint.liked ? 'fas fa-heart' : 'far fa-heart'"
           size="sm"
         />
         <q-btn
@@ -119,11 +119,15 @@ export default {
         this.$router.push(`/auth?redirect=pints/${this.pintId}`);
         return;
       }
+
+      const userEmail = this.logedInUserEmail;
+
       const newComment = {
         content: comment,
         date: Date.now(),
         liked: false,
         pintId: this.pintId,
+        userEmail,
       };
 
       this.$store.dispatch("com/addComment", newComment);
@@ -182,6 +186,9 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isAuth;
     },
+    logedInUserEmail(){
+      return this.$store.getters.userEmail;
+    }
   },
 };
 </script>

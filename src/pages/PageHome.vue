@@ -54,9 +54,9 @@
 
             <q-item-section>
               <q-item-label class="text-subtitle1">
-                <strong>Aleksandr Narusevic</strong>
-                <span class="text-grey-7">
-                  @aleksandr <br class="lt-md" />
+                <!-- <strong>Aleksandr Narusevic</strong> -->
+                <span class="text-grey-9">
+                  {{ pint.userEmail }} <br class="lt-md" />
                   &bull; {{ relativeDate(pint.date) }}</span
                 >
               </q-item-label>
@@ -126,10 +126,13 @@ export default {
         return
       }
 
+      const userEmail = this.logedInUserEmail;
+
       const newPint = {
         content: this.newPint,
         date: Date.now(),
         liked: false,
+        userEmail,
       };
 
       this.$store.dispatch("pint/addPint", newPint);
@@ -180,6 +183,9 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isAuth;
     },
+    logedInUserEmail(){
+      return this.$store.getters.userEmail;
+    }
   },
   created() {
     this.loadPints();

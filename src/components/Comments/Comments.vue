@@ -8,6 +8,7 @@
       :date="comment.date"
       :liked="comment.liked"
       :postId="postId"
+      :userEmail="comment.userEmail"
     />
   </q-list>
 </template>
