@@ -177,7 +177,6 @@ export default {
     },
     comments() {
       const comments = this.$store.getters["com/comments"];
-      console.log("getter comments", comments);
       return comments;
     },
     isLoggedIn() {

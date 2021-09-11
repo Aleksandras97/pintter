@@ -29,7 +29,7 @@ const pintModules = {
     deletePint(state, data) {
       const index = state.pints.findIndex((pint) => pint.id === data.id);
       state.pints.splice(index, 1);
-      this.$router.replace('/pints')
+      this.$router.replace("/pints");
     },
   },
   actions: {
@@ -56,7 +56,7 @@ const pintModules = {
           ctx.commit("setPints", pints);
         })
         .catch((err) => {
-          console.log(err.message);
+          throw `Email or password is incorrect (${err.message})`;
         });
     },
     async loadPint(ctx, pintId) {
@@ -66,7 +66,6 @@ const pintModules = {
         )
         .then((res) => {
           const resData = res.data;
-          console.log("loadPint", resData);
 
           const pints = [];
 
@@ -82,7 +81,7 @@ const pintModules = {
           ctx.commit("setPints", pints);
         })
         .catch((err) => {
-          console.log(err.message);
+          throw `Email or password is incorrect (${err.message})`;
         });
     },
     addPint(ctx, data) {
@@ -90,8 +89,8 @@ const pintModules = {
         ...data,
       };
 
-      const token = ctx.rootGetters.token
-      const userId = ctx.rootGetters.token
+      const token = ctx.rootGetters.token;
+      const userId = ctx.rootGetters.token;
 
       axios
         .post(
@@ -101,30 +100,25 @@ const pintModules = {
           }
         )
         .then((res) => {
-          console.log(res);
           ctx.commit("setPint", {
             ...pint,
             id: res.data.name,
-            userId: userId
+            userId: userId,
           });
         })
         .catch((err) => {
-          console.log(err);
+          throw `Email or password is incorrect (${err.message})`;
         });
     },
     updateLiked(ctx, data) {
-
-      const token = ctx.rootGetters.token
-      console.log("update pint data", data);
+      const token = ctx.rootGetters.token;
       axios.patch(
         `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${data.id}.json?auth=${token}`,
-          {liked: data.liked}
-
+        { liked: data.liked }
       );
     },
     deletePint(ctx, pint) {
-
-      const token = ctx.rootGetters.token
+      const token = ctx.rootGetters.token;
 
       axios
         .delete(
@@ -134,8 +128,9 @@ const pintModules = {
           ctx.commit("deletePint", {
             ...pint,
           });
-        }).catch(err => {
-          throw  `Oops failed to delete pint (${err.message})`
+        })
+        .catch((err) => {
+          throw `Oops failed to delete pint (${err.message})`;
         });
     },
   },

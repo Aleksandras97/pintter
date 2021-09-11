@@ -42,7 +42,6 @@ const commentModules = {
         )
         .then((res) => {
           const resData = res.data;
-          // console.log('pint Comments', resData);
 
           const comments = [];
 
@@ -56,16 +55,14 @@ const commentModules = {
             };
             comments.push(comment);
           }
-          console.log("pint Comments 2", comments);
           ctx.commit("setComments", comments);
         })
         .catch((err) => {
-          console.log(err.message);
+          throw `Email or password is incorrect (${err.message})`;
         });
     },
     addComment(ctx, data) {
-
-      const token = ctx.rootGetters.token
+      const token = ctx.rootGetters.token;
 
       const comment = {
         ...data,
@@ -79,18 +76,17 @@ const commentModules = {
           }
         )
         .then((res) => {
-          console.log(res);
           ctx.commit("setComment", {
             ...comment,
             id: res.data.name,
           });
         })
         .catch((err) => {
-          console.log(err);
+          throw `Email or password is incorrect (${err.message})`;
         });
     },
     updateLiked(ctx, { pint, comment }) {
-      const token = ctx.rootGetters.token
+      const token = ctx.rootGetters.token;
 
       axios.patch(
         `https://pintter-96560-default-rtdb.europe-west1.firebasedatabase.app/pints/${pint.id}/comments/${comment.id}.json?auth=${token}`,
@@ -100,7 +96,7 @@ const commentModules = {
       );
     },
     deleteComment(ctx, comment) {
-      const token = ctx.rootGetters.token
+      const token = ctx.rootGetters.token;
 
       axios
         .delete(
@@ -112,7 +108,7 @@ const commentModules = {
           });
         })
         .catch((err) => {
-          console.log(err);
+          throw `Email or password is incorrect (${err.message})`;
         });
     },
   },
