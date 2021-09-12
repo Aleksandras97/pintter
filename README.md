@@ -1,26 +1,6 @@
 # Pintter (pintter)
 
-A first quasar framework app
+A first quasar framework twitter clone app
 
-## Install the dependencies
-```bash
-npm install
-```
-
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
-
-### Lint the files
-```bash
-npm run lint
-```
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
+## Created with Vue + Firebase
+This is fully responsive web/mobile Twitter clone application. On this demo app you can add posts, like them and delete them. Also add post comments. It also has token based user authentication.
