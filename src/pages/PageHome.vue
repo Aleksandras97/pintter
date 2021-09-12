@@ -1,6 +1,6 @@
 <template>
   <q-page class="relative-position">
-    <q-scroll-area class="absolute fullscreen">
+    <q-scroll-area class="absolute full-width full-height">
       <div class="q-py-lg q-px-md row items-end q-col-gutter-md">
         <div class="col">
           <q-input
@@ -25,7 +25,7 @@
           <q-btn
             @click="addNewPint"
             class="q-mb-lg"
-            :disable="newPint"
+            :disable="!newPint"
             unelevated
             rounded
             color="primary"
@@ -43,7 +43,7 @@
           enter-active-class="animated fadeIn slow"
           leave-active-class="animated fadeOut slow"
         >
-          <q-item class="q-py-md" v-for="(pint, index) in pints" :key="index">
+          <q-item class="q-py-md" v-for="pint in AllTweets" :key="pint.id">
             <q-item-section avatar top>
               <q-avatar size="xl">
                 <img
@@ -54,16 +54,16 @@
 
             <q-item-section>
               <q-item-label class="text-subtitle1">
-                <strong>Aleksandr Narusevic</strong>
-                <span class="text-grey-7">
-                  @aleksandr <br class="lt-md" />
+                <!-- <strong>Aleksandr Narusevic</strong> -->
+                <span class="text-grey-9">
+                  {{ pint.user.email }} <br class="lt-md" />
                   &bull; {{ relativeDate(pint.date) }}</span
                 >
               </q-item-label>
               <q-item-label class="pint-content text-body1">
                 {{ pint.content }}
               </q-item-label>
-              <div class="pint-icons row justify-between q-mt-sm">
+              <div class="pint-icons row justify-evenly q-mt-sm">
                 <q-btn
                   flat
                   round
@@ -78,8 +78,16 @@
                   icon="fas fa-retweet"
                   size="sm"
                 />
-                <q-btn flat round color="grey" icon="fas fa-heart" size="sm" />
                 <q-btn
+                  flat
+                  round
+                  :color="pint.liked ? 'pink' : 'gray'"
+                  :icon="pint.liked ? 'fas fa-heart' : 'far fa-heart'"
+                  size="sm"
+                  @click="toggleLiked(pint)"
+                />
+                <q-btn
+                  v-if="logedInUser.id === pint.user.id"
                   flat
                   round
                   color="grey"
@@ -87,6 +95,11 @@
                   size="sm"
                   @click="deletePint(pint)"
                 />
+              </div>
+              <div class="flex justify-center view-detail">
+                <router-link :to="tweetDetailLink(pint)">
+                  View Detail
+                </router-link>
               </div>
             </q-item-section>
           </q-item>
@@ -103,41 +116,52 @@ export default {
   data() {
     return {
       newPint: "",
-      pints: [
-        {
-          id: "p1",
-          content:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-          date: Date.now() + 1,
-        },
-        {
-          id: "p2",
-          content:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-          date: Date.now(),
-        },
-        {
-          id: "p3",
-          content:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, impedit pariatur architecto ut explicabo fugit expedita iste ea alias molestiae odit dolorem ipsum, voluptatibus ipsam maxime repudiandae quam enim? Nam.",
-          date: Date.now() - 5,
-        },
-      ],
+      isLoading: false
     };
   },
   methods: {
     addNewPint() {
-      console.log(this.newPint);
+      if (!this.isLoggedIn) {
+        this.$router.push('/auth')
+        return
+      }
+
+      const user = this.logedInUser;
+
       const newPint = {
-        id: new Date().toISOString(),
         content: this.newPint,
         date: Date.now(),
+        liked: false,
+        user,
       };
-      this.pints.unshift(newPint);
+
+      this.$store.dispatch("pint/addPint", newPint);
+
       this.newPint = "";
     },
-    deletePint(pintData) {
-      this.pints = this.pints.filter((pint) => pint.id !== pintData.id);
+    toggleLiked(pint) {
+      if (!this.isLoggedIn) {
+        this.$router.push('/auth')
+        return
+      }
+      pint.liked = !pint.liked;
+
+      // Toggle the "liked" field of the pint
+      this.$store.dispatch("pint/updateLiked", pint);
+    },
+    deletePint(data) {
+      if (!this.isLoggedIn) {
+        this.$router.push('/auth')
+        return
+      }
+      this.$store.dispatch("pint/deletePint", data);
+    },
+    loadPints() {
+      this.isLoading = true;
+
+      this.$store.dispatch("pint/loadPints");
+
+      this.isLoading = false;
     },
   },
   computed: {
@@ -146,6 +170,25 @@ export default {
         return formatDistance(value, new Date());
       };
     },
+    tweetDetailLink() {
+      return (pint) => {
+        const detailLink = this.$route.path + "/" + pint.id;
+        return detailLink;
+      };
+    },
+    AllTweets() {
+      const pints = this.$store.getters["pint/pints"];
+      return pints;
+    },
+    isLoggedIn() {
+      return this.$store.getters.isAuth;
+    },
+    logedInUser(){
+      return this.$store.getters.user;
+    }
+  },
+  created() {
+    this.loadPints();
   },
 };
 </script>
@@ -166,4 +209,9 @@ export default {
 
 .pint-icons
   margin-left: -5px
+
+.view-detail
+  a
+    text-decoration: none
+    color: $primary
 </style>
