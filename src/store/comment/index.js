@@ -4,15 +4,7 @@ const commentModules = {
   namespaced: true,
   state() {
     return {
-      comments: [
-        {
-          id: "c1",
-          contect: "Maximilian",
-          date: 1631276929992,
-          liked: false,
-          postId: "p1",
-        },
-      ],
+      comments: [],
     };
   },
   getters: {
@@ -52,14 +44,14 @@ const commentModules = {
               date: resData[key].date,
               liked: resData[key].liked,
               pintId: resData[key].pintId,
-              userEmail: resData[key].userEmail,
+              user: resData[key].user,
             };
             comments.push(comment);
           }
           ctx.commit("setComments", comments);
         })
         .catch((err) => {
-          throw `Email or password is incorrect (${err.message})`;
+          throw `Failed to fetch user data  (${err.message})`;
         });
     },
     addComment(ctx, data) {
@@ -83,7 +75,7 @@ const commentModules = {
           });
         })
         .catch((err) => {
-          throw `Email or password is incorrect (${err.message})`;
+          throw `Failed to create data (${err.message})`;
         });
     },
     updateLiked(ctx, { pint, comment }) {
@@ -109,7 +101,7 @@ const commentModules = {
           });
         })
         .catch((err) => {
-          throw `Email or password is incorrect (${err.message})`;
+          throw `Failed to destroy data (${err.message})`;
         });
     },
   },

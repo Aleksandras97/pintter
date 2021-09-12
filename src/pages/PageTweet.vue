@@ -20,7 +20,7 @@
           <q-item-label class="text-subtitle1">
             <!-- <strong>Aleksandr Narusevic</strong> -->
             <span class="text-grey-9">
-              {{ pint.userEmail }} <br class="lt-md" />
+              {{ pint.user.email }} <br class="lt-md" />
               &bull; {{ relativeDate }}
             </span>
           </q-item-label>
@@ -33,7 +33,7 @@
         class="
           pint-icons
           row
-          justify-between
+          justify-evenly
           items-center
           q-mt-sm q-px-lg
           icons-seperator
@@ -53,6 +53,7 @@
           size="sm"
         />
         <q-btn
+        v-if="logedInUser.id === pint.user.id"
           flat
           round
           color="grey"
@@ -120,14 +121,14 @@ export default {
         return;
       }
 
-      const userEmail = this.logedInUserEmail;
+      const user = this.logedInUser;
 
       const newComment = {
         content: comment,
         date: Date.now(),
         liked: false,
         pintId: this.pintId,
-        userEmail,
+        user,
       };
 
       this.$store.dispatch("com/addComment", newComment);
@@ -186,8 +187,8 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isAuth;
     },
-    logedInUserEmail(){
-      return this.$store.getters.userEmail;
+    logedInUser(){
+      return this.$store.getters.user;
     }
   },
 };

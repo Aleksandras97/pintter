@@ -14,8 +14,12 @@ const authModules = {
     userId(state) {
       return state.userId;
     },
-    userEmail(state) {
-      return state.userEmail;
+    user(state) {
+      const user = {
+        id: state.userId,
+        email: state.userEmail,
+      }
+      return user;
     },
     token(state) {
       return state.token;
@@ -81,7 +85,7 @@ const authModules = {
           localStorage.setItem("userId", resData.localId);
           localStorage.setItem("tokenExpiration", expirationDate);
 
-          ctx.dispatch("getUserData", token);
+          // ctx.dispatch("getUserData", token);
 
           timer = setTimeout(() => {
             ctx.dispatch("autoLogout");
@@ -89,7 +93,7 @@ const authModules = {
 
           ctx.commit("setUser", {
             token: resData.idToken,
-            userid: resData.localId,
+            userId: resData.localId,
           });
           ctx.commit('setUserData', resData.email)
         })
@@ -145,6 +149,9 @@ const authModules = {
         token: null,
         userId: null,
       });
+      ctx.commit('setUserData', {
+        userEmail: null,
+      })
     },
     autoLogout(ctx) {
       ctx.dispatch("logout");

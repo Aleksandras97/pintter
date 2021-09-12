@@ -12,7 +12,7 @@
       <q-item-label class="text-subtitle1">
         <!-- <strong>Aleksandr Narusevic</strong> -->
         <span class="text-grey-9">
-          {{ userEmail }} <br class="lt-md" />
+          {{ commentUserEmail }} <br class="lt-md" />
           &bull; {{ relativeDate }}
         </span>
       </q-item-label>
@@ -31,6 +31,7 @@
       size="sm"
     />
     <q-btn
+      v-if="logedInUser.id === commentUserId"
       flat
       round
       color="grey"
@@ -45,11 +46,25 @@
 import { formatDistance } from "date-fns";
 export default {
   emits: ["updated-liked", "delete-comment"],
-  props: ["liked", "content", "date", "id", "postId", "userEmail"],
+  props: [
+    "liked",
+    "content",
+    "date",
+    "id",
+    "postId",
+    "commentUserEmail",
+    "commentUserId",
+  ],
   computed: {
     relativeDate() {
       const date = formatDistance(this.date, new Date());
       return date;
+    },
+    logedInUser() {
+      return this.$store.getters.user;
+    },
+    email() {
+      return this.user.email;
     },
   },
 };

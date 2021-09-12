@@ -56,7 +56,7 @@
               <q-item-label class="text-subtitle1">
                 <!-- <strong>Aleksandr Narusevic</strong> -->
                 <span class="text-grey-9">
-                  {{ pint.userEmail }} <br class="lt-md" />
+                  {{ pint.user.email }} <br class="lt-md" />
                   &bull; {{ relativeDate(pint.date) }}</span
                 >
               </q-item-label>
@@ -87,6 +87,7 @@
                   @click="toggleLiked(pint)"
                 />
                 <q-btn
+                  v-if="logedInUser.id === pint.user.id"
                   flat
                   round
                   color="grey"
@@ -115,8 +116,7 @@ export default {
   data() {
     return {
       newPint: "",
-      pints: [],
-      isLoading: false,
+      isLoading: false
     };
   },
   methods: {
@@ -126,13 +126,13 @@ export default {
         return
       }
 
-      const userEmail = this.logedInUserEmail;
+      const user = this.logedInUser;
 
       const newPint = {
         content: this.newPint,
         date: Date.now(),
         liked: false,
-        userEmail,
+        user,
       };
 
       this.$store.dispatch("pint/addPint", newPint);
@@ -183,8 +183,8 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isAuth;
     },
-    logedInUserEmail(){
-      return this.$store.getters.userEmail;
+    logedInUser(){
+      return this.$store.getters.user;
     }
   },
   created() {

@@ -5,12 +5,6 @@ const pintModules = {
   state() {
     return {
       pints: [
-        // {
-        //   id: "c1",
-        //   contect: "Maximilian",
-        //   date: 1631276929992,
-        //   liked: false,
-        // },
       ],
     };
   },
@@ -49,7 +43,7 @@ const pintModules = {
               content: resData[key].content,
               date: resData[key].date,
               liked: resData[key].liked,
-              userEmail: resData[key].userEmail,
+              user: resData[key].user,
             };
             pints.push(pint);
           }
@@ -57,7 +51,7 @@ const pintModules = {
           ctx.commit("setPints", pints);
         })
         .catch((err) => {
-          throw `Email or password is incorrect (${err.message})`;
+          throw `Failed to fetch data (${err.message})`;
         });
     },
     async loadPint(ctx, pintId) {
@@ -75,7 +69,7 @@ const pintModules = {
             content: resData.content,
             date: resData.date,
             liked: resData.liked,
-            userEmail: resData.userEmail,
+            user: resData.user,
           };
 
           pints.push(pint);
@@ -83,7 +77,7 @@ const pintModules = {
           ctx.commit("setPints", pints);
         })
         .catch((err) => {
-          throw `Email or password is incorrect (${err.message})`;
+          throw `Failed to fetch data (${err.message})`;
         });
     },
     addPint(ctx, data) {
@@ -109,7 +103,7 @@ const pintModules = {
           });
         })
         .catch((err) => {
-          throw `Email or password is incorrect (${err.message})`;
+          throw `Failed to create data (${err.message})`;
         });
     },
     updateLiked(ctx, data) {
@@ -132,7 +126,7 @@ const pintModules = {
           });
         })
         .catch((err) => {
-          throw `Oops failed to delete pint (${err.message})`;
+          throw `Failed to destroy data (${err.message})`;
         });
     },
   },
